@@ -40,15 +40,13 @@ class DslTest {
             riskCategory { FixedWidthPropertiesKt(50, 2, null, "LEFT") }
             name { FixedWidthPropertiesKt(50, 2, null, "RIGHT") }
             yearHighest {
-                amount {
-                    currency { FixedWidthPropertiesKt(112, 3, ' ', "LEFT") }
-                    balance { FixedWidthPropertiesKt(115, 17, ' ', "RIGHT") }
-                }
+                currency { FixedWidthPropertiesKt(112, 3, ' ', "LEFT") }
+                balance { FixedWidthPropertiesKt(115, 17, ' ', "RIGHT") }
+            }
             yearLowest {
-                amount {
-                    currency { FixedWidthPropertiesKt(112, 3, ' ', "LEFT") }
-                    balance { FixedWidthPropertiesKt(115, 17, ' ', "RIGHT") }
-                }
+                currency { FixedWidthPropertiesKt(112, 3, ' ', "LEFT") }
+                balance { FixedWidthPropertiesKt(115, 17, ' ', "RIGHT") }
+            }
             }
         }
     }
