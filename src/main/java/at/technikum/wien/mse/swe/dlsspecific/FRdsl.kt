@@ -6,6 +6,7 @@ import java.util.*
 
 val INPUTFILE = "/examples/SecurityAccountOverview_0123456789.txt"
 
+@DslMarker annotation class BusinessDsl
 data class SecurityAccountOverviewKt(val accountNumber: String,
                                      val riskCategory: RiskCategoryKt,
                                      val depotOwner: DepotOwnerKt,
@@ -30,26 +31,24 @@ enum class RiskCategoryKt(private val code: String) {
     }
 }
 
-fun SecurityAccountOverview(block: SecurityAccountOverviewBuilder.() -> Unit) = SecurityAccountOverviewBuilder().apply{block}.build()
+fun SecurityAccountOverview(block: SecurityAccountOverviewBuilder.() -> Unit) = SecurityAccountOverviewBuilder().apply(block).build()
 
-class SecurityAccountOverviewBuilder {
+@BusinessDsl class SecurityAccountOverviewBuilder {
     private var accountNumber = ""
     private var riskCategory = RiskCategoryKt.NON_EXISTING
     private var depotOwner = DepotOwnerKt("", "")
-    private var amount = AmountKt("EUR", BigDecimal.valueOf(10.10))
+    private var amount = AmountKt("", BigDecimal.ZERO)
 
+    //todo: not called, why?
+//    fun accountNumber(block: () -> FixedWidthPropertiesKt) { accountNumber = block().fieldValue }
     fun accountNumber(block: () -> FixedWidthPropertiesKt) { accountNumber = block().fieldValue }
-
-    fun riskCategory(block: RiskCategoryBuilder.() -> Unit) { riskCategory = RiskCategoryBuilder().apply { block }.build() }
-
-    fun depotOwner(block: DepotOwnerBuilder.() -> Unit) { depotOwner = DepotOwnerBuilder().apply{block}.build() }
-
-    fun amount(block: AmountBuilder.() -> Unit ) { amount = AmountBuilder().apply { block }.build() }
-
+    fun riskCategory(block: RiskCategoryBuilder.() -> Unit) { riskCategory = RiskCategoryBuilder().apply ( block ).build() }
+    fun depotOwner(block: DepotOwnerBuilder.() -> Unit) { depotOwner = DepotOwnerBuilder().apply(block).build() }
+    fun amount(block: AmountBuilder.() -> Unit ) { amount = AmountBuilder().apply ( block ).build() }
     fun build() = SecurityAccountOverviewKt(accountNumber, riskCategory, depotOwner, amount)
 }
 
-class RiskCategoryBuilder {
+@BusinessDsl class RiskCategoryBuilder {
     private var riskCategory = RiskCategoryKt.NON_EXISTING
 
     fun riskCategory(riskCategory: () -> FixedWidthPropertiesKt) {
@@ -60,7 +59,7 @@ class RiskCategoryBuilder {
     fun build() = riskCategory
 }
 
-class DepotOwnerBuilder {
+@BusinessDsl class DepotOwnerBuilder {
     private var firstName = ""
     private var lastName = ""
 
@@ -77,13 +76,12 @@ class DepotOwnerBuilder {
     fun build() = DepotOwnerKt(firstName, lastName)
 }
 
-class AmountBuilder {
+@BusinessDsl class AmountBuilder {
     private var currency = ""
     private var balance: BigDecimal = BigDecimal.ZERO
 
     fun currency(currency: () -> FixedWidthPropertiesKt) {
-        val extracted = ConfigParser(INPUTFILE).readField(currency())
-        this.currency = extracted
+        this.currency = currency().fieldValue
     }
     fun balance(balance: () -> FixedWidthPropertiesKt) {
         this.balance = balance().fieldValue.toBigDecimal()
