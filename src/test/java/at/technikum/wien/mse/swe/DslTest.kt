@@ -1,23 +1,34 @@
 package at.technikum.wien.mse.swe
 
+import at.technikum.wien.mse.swe.dlsspecific.FixedWidthPropertiesKt
+import at.technikum.wien.mse.swe.dlsspecific.RiskCategoryKt
 import at.technikum.wien.mse.swe.dlsspecific.SecurityAccountOverview
 import at.technikum.wien.mse.swe.dlsspecific.SecurityAccountOverviewKt
+import junit.framework.Assert.assertEquals
 import org.junit.Test
 
 class DslTest {
+
     @Test
     fun assertDsl() {
+        val mySecurityAccountOverview =
         SecurityAccountOverview {
-            accountNumber { FixedWidthProperties(10, 10,  '0', "LEFT") }
-            riskCategory { FixedWidthProperties(10, 10,  '0', "LEFT") }
+            accountNumber { FixedWidthPropertiesKt(40, 10,  '0', "RIGHT") }
+            riskCategory { FixedWidthPropertiesKt(50, 2,  null, "LEFT") }
             depotOwner {
-                firstname { FixedWidthProperties(10, 10,  '0', "LEFT") }
-                lastname{ FixedWidthProperties(10, 10,  '0', "LEFT") }
+                lastName{ FixedWidthPropertiesKt(52, 30,  ' ', "RIGHT") }
+                firstName { FixedWidthPropertiesKt(82, 30,  ' ', "RIGHT") }
             }
             amount {
-                currency { FixedWidthProperties(10, 10,  '0', "LEFT") }
-                balance { FixedWidthProperties(10, 10,  '0', "LEFT") }
+                currency { FixedWidthPropertiesKt(112, 3,  ' ', "LEFT") }
+                balance { FixedWidthPropertiesKt(115, 17,  ' ', "RIGHT") }
             }
         }
+        assertEquals(123456789, mySecurityAccountOverview.accountNumber)
+        assertEquals(RiskCategoryKt.NON_EXISTING, mySecurityAccountOverview.riskCategory)
+        assertEquals("MUSTERMANN", mySecurityAccountOverview.depotOwner.lastName)
+        assertEquals("MAX UND MARIA", mySecurityAccountOverview.depotOwner.firstName)
+        assertEquals("EUR", mySecurityAccountOverview.amount.currency)
+        assertEquals("1692.45", mySecurityAccountOverview.amount.balance)
     }
 }

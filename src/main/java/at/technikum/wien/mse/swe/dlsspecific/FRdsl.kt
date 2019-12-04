@@ -1,9 +1,5 @@
 package at.technikum.wien.mse.swe.dlsspecific
 
-import at.technikum.wien.mse.swe.model.Amount
-import at.technikum.wien.mse.swe.model.DepotOwner
-import at.technikum.wien.mse.swe.model.RiskCategory
-import sun.security.krb5.Config
 import java.math.BigDecimal
 import java.util.*
 
@@ -15,13 +11,13 @@ data class SecurityAccountOverviewKt(val accountNumber: String,
                                      val depotOwner: DepotOwnerKt,
                                      val amount: AmountKt)
 
-data class FixedWidthPropertiesKt(var startsAt: Int, var length: Int, var padding: Char?, var alignment: FieldAlignment) {
+data class FixedWidthPropertiesKt(var startsAt: Int, var length: Int, var padding: Char?, var alignment: String) {
     //contains the extracted value
-    var fieldValue: String = ""
+    var fieldValue: String = ConfigParser(INPUTFILE).readField(this)
 
 }
 
-data class AmountKt (val currency: String, val value: BigDecimal)
+data class AmountKt (val currency: String, val balance: BigDecimal)
 data class DepotOwnerKt(val firstName: String , val lastName: String)
 
 enum class RiskCategoryKt(private val code: String) {
@@ -42,15 +38,13 @@ class SecurityAccountOverviewBuilder {
     private var depotOwner = DepotOwnerKt("", "")
     private var amount = AmountKt("EUR", BigDecimal.valueOf(10.10))
 
-    //lambda provides accountNumber through its logic -> but the goal is to
-    //contain FixedwidthProperties which will have to evaluated for the real value
-    fun accountNumber(block: () -> String) { accountNumber = block() }
+    fun accountNumber(block: () -> FixedWidthPropertiesKt) { accountNumber = block().fieldValue }
 
-    fun riskCategory(block: RiskCategoryKt.() -> Unit) { riskCategory = RiskCategoryBuilder().apply { block }.build() }
+    fun riskCategory(block: RiskCategoryBuilder.() -> Unit) { riskCategory = RiskCategoryBuilder().apply { block }.build() }
 
-    fun depotOwner(block: DepotOwnerKt.() -> Unit) { depotOwner = DepotOwnerBuilder().apply{block}.build() }
+    fun depotOwner(block: DepotOwnerBuilder.() -> Unit) { depotOwner = DepotOwnerBuilder().apply{block}.build() }
 
-    fun amount(block: AmountKt.() -> Unit ) { amount = AmountBuilder().apply { block }.build() }
+    fun amount(block: AmountBuilder.() -> Unit ) { amount = AmountBuilder().apply { block }.build() }
 
     fun build() = SecurityAccountOverviewKt(accountNumber, riskCategory, depotOwner, amount)
 }
@@ -72,12 +66,12 @@ class DepotOwnerBuilder {
 
     fun firstName(firstName: () -> FixedWidthPropertiesKt) {
         val extracted = ConfigParser(INPUTFILE).readField(firstName())
-        this.firstName = extracted
+        this.firstName = firstName().fieldValue
     }
 
     fun lastName(lastName: () -> FixedWidthPropertiesKt)  {
         val extracted =  ConfigParser(INPUTFILE).readField(lastName())
-        this.lastName = extracted
+        this.lastName = lastName().fieldValue
     }
 
     fun build() = DepotOwnerKt(firstName, lastName)
@@ -85,16 +79,15 @@ class DepotOwnerBuilder {
 
 class AmountBuilder {
     private var currency = ""
-    private var value: BigDecimal = BigDecimal.ZERO
+    private var balance: BigDecimal = BigDecimal.ZERO
 
     fun currency(currency: () -> FixedWidthPropertiesKt) {
         val extracted = ConfigParser(INPUTFILE).readField(currency())
         this.currency = extracted
     }
-    fun value(value: () -> FixedWidthPropertiesKt) {
-        val extracted = ConfigParser(INPUTFILE).readField(value())
-        this.value = extracted.toBigDecimal()
+    fun balance(balance: () -> FixedWidthPropertiesKt) {
+        this.balance = balance().fieldValue.toBigDecimal()
     }
 
-    fun build() = AmountKt(currency, value)
+    fun build() = AmountKt(currency, balance)
 }
