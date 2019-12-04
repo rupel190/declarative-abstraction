@@ -1,7 +1,6 @@
 package at.technikum.wien.mse.swe
 
 import at.technikum.wien.mse.swe.dlsspecific.ConfigParser
-import at.technikum.wien.mse.swe.dlsspecific.FieldAlignment
 import at.technikum.wien.mse.swe.dlsspecific.FixedWidthPropertiesKt
 import junit.framework.Assert.assertEquals
 import org.junit.Test
