@@ -5,9 +5,7 @@ class ConfigParser (val fileName: String){
     fun readFileAsLinesUsingGetResourceAsStream()
             = javaClass.getResourceAsStream(fileName).bufferedReader()
 
-
-
-    fun readField(props: FixedWidthPropertiesKt) : String {
+    fun readField(props: FixedWidthProperties) : String {
         val reader = readFileAsLinesUsingGetResourceAsStream()
         val line = reader.readLine()
 
@@ -17,6 +15,4 @@ class ConfigParser (val fileName: String){
         }
         return rawField
     }
-
-
 }
